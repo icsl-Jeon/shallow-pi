@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shallow-π - IROS Poster</title>
+  <meta name="description" content="Shallow-π IROS poster: Knowledge Distillation for Efficient Flow-based VLAs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]] }, svg: { fontCache: "global" } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <main class="poster">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">IROS 2026 Poster</p>
+        <h1>Shallow-<span class="pi-symbol">π</span></h1>
+        <p class="subtitle">Knowledge Distillation for Efficient Flow-based Vision-Language-Action Models</p>
+        <p class="authors">Boseong Jeon<sup>1</sup> · Yunho Choi<sup>3</sup> · Taehan Kim<sup>2</sup></p>
+        <p class="note"><sup>1</sup>42dot, software center of Hyundai Motor Group · <sup>2</sup>Ludo Robotics, KRAFTON startup · <sup>3</sup>Samsung Research · Research performed during Samsung Research.</p>
+      </div>
+      <div class="hero-side" aria-label="Links">
+        <a class="qr-link" href="https://arxiv.org/abs/2601.20262"><img src="media/shallow-pi/paper-qr.png" alt="QR code for the Shallow-pi paper"><span>Paper</span></a>
+        <a class="qr-link" href="https://icsl-jeon.github.io/shallow-pi/"><img src="media/shallow-pi/project-qr.png" alt="QR code for the Shallow-pi project page"><span>Project</span></a>
+        <a class="qr-link" href="https://www.linkedin.com/in/boseong-jeon-491773226/"><img src="media/shallow-pi/linkedin-qr.png" alt="QR code for Boseong Jeon's LinkedIn profile"><span>LinkedIn</span></a>
+      </div>
+      <!--
+      <div class="header-visual">
+        <figure class="deployment-hero">
+          <img src="media/shallow-pi/header-robot.png" alt="RB-Y1 humanoid robot">
+          <span class="device-tile device-pair">
+            <span><img src="media/shallow-pi/jetson-thor-transparent.png" alt="NVIDIA Jetson Thor"><b>Thor</b></span>
+            <span><img src="media/shallow-pi/jetson-orin-transparent.png" alt="NVIDIA Jetson Orin"><b>Orin</b></span>
+          </span>
+        </figure>
+        <div class="hero-side" aria-label="Links">
+          <a class="qr-link" href="https://arxiv.org/abs/2601.20262"><img src="media/shallow-pi/paper-qr.png" alt="QR code for the Shallow-pi paper"><span>Paper</span></a>
+          <a class="qr-link" href="https://icsl-jeon.github.io/shallow-pi/"><img src="media/shallow-pi/project-qr.png" alt="QR code for the Shallow-pi project page"><span>Project</span></a>
+        </div>
+      </div>
+      -->
+    </header>
+
+    <section class="tldr" aria-label="Main result">
+      <p><strong>Run flow-based VLAs efficiently on edge devices</strong> by making the transformer shallow, then distilling the original model.</p>
+      <div class="big-numbers">
+        <div><span>Transformer layers</span><strong>18 → 6</strong></div>
+        <div><span>Faster inference</span><strong>&gt;2×</strong></div>
+        <div><span>Success-rate drop</span><strong>2%</strong></div>
+        <div><span>Real robots tested</span><strong>Grippers + hands</strong></div>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel motivation">
+        <h2>Why Go Shallow?</h2>
+        <div class="equation equation-html" aria-label="Flow cost is approximately denoising steps times token compute times transformer depth">
+          <span>Flow cost</span><b>≈</b>
+          <span>N<sub>steps</sub></span><b>×</b>
+          <span>C<sub>tokens</sub></span><b>×</b>
+          <span class="depth-term">L<sub>depth</sub></span>
+        </div>
+        <div class="term-list">
+          <div><b>N<sub>steps</sub></b><span>Step reduction mostly shortens the small diffusion policy head.</span></div>
+          <div><b>C<sub>tokens</sub></b><span>GPU parallelism already helps; aggressive image-token pruning is risky for precision tasks.</span></div>
+          <div class="depth"><b>L<sub>depth</sub></b><span>Sequential and hard to parallelize; it scales VLM and policy-head parameters.</span></div>
+        </div>
+        <div class="motivation-figures">
+          <figure class="figure-card">
+            <img src="media/shallow-pi/computation-left.png" alt="CUDA time decreases strongly with transformer depth reduction">
+            <figcaption><b>Depth gives the bigger latency win.</b> Shallow layers cut repeated sequential transformer compute.</figcaption>
+          </figure>
+          <figure class="figure-card scope-figure">
+            <img src="media/shallow-pi/scope.png" alt="Comparison of shallow VLA scopes across openVLA, CogACT, Gr00t, SmoLVLA, and Shallow-pi styles">
+            <figcaption><b>Depth touches both parts.</b> Our student reduces VLM and action-head layers.</figcaption>
+          </figure>
+        </div>
+
+        <h2>Previous Methods for Shallow VLA</h2>
+        <div class="previous-figures">
+          <figure class="figure-card layer-selection">
+            <img src="media/shallow-pi/layer-selection-difficulty.png" alt="Adjacent layer representation similarity and success drop across layer indices">
+            <figcaption><b>Choosing layers is fragile.</b> Similarity does not reliably predict success drop.</figcaption>
+          </figure>
+          <figure class="figure-card skip-success">
+            <img src="media/shallow-pi/layer-skipping-success-rate.png" alt="LIBERO 10 success rate decreases as more transformer layers are skipped">
+            <figcaption><b>Skipping quickly hurts success.</b> Aggressive manual skipping collapses performance.</figcaption>
+          </figure>
+        </div>
+        <div class="compare-list">
+          <div><b>Layer skipping</b><span>manual thresholds, task-dependent rules</span></div>
+          <div><b>Learned selectors</b><span>extra routing, training and inference complexity</span></div>
+          <div class="call"><b>Can we make it simple and automatic?</b><span>Make a shallow student directly, then recover capability with knowledge distillation.</span></div>
+        </div>
+      </article>
+
+      <article class="panel method">
+        <h2>Shallow-<span class="pi-symbol">π</span> Is Surprisingly Simple</h2>
+        <figure class="figure-card main-diagram">
+          <img src="media/shallow-pi/diagram-real.png" alt="Shallow-pi knowledge distillation diagram">
+        </figure>
+        <div class="steps">
+          <p><b>1. Make the student shallow</b> Uniformly subsample layers in both the VLM backbone and action head.</p>
+          <p><b>2. Learn task loss</b> Supervise the student with ground-truth flow velocity. <span class="loss">\(L_{\mathrm{task}}=\mathbb{E}[\lVert v_\theta(\cdot)-u\rVert_2^2]\)</span></p>
+          <p><b>3. Mimic teacher denoising</b> Match the teacher's predicted velocity. <span class="loss">\(L_{\mathrm{kd}}=\mathbb{E}[\lVert v_\theta(\cdot)-v_\phi(\cdot)\rVert_2^2]\)</span></p>
+          <p><b>4. Distill attention</b> Match middle-layer action-to-VL attention. <span class="loss">\(L_{\mathrm{attn}}=\mathbb{E}[\mathrm{KL}(\mathrm{Attn}_{\phi}^{a\to vl}\Vert\mathrm{Attn}_{\theta}^{a\to vl})]\)</span></p>
+        </div>
+        <div class="thats-it">
+          <b>That's it.</b>
+          <span>No learned layer selector.</span>
+          <span>No manual inference threshold.</span>
+          <span>No modified inference pipeline.</span>
+        </div>
+        <p class="ablation-lead"><b>Ablation:</b> each distillation term contributes, and middle-layer action attention is the strongest target.</p>
+        <div class="ablation-tables" aria-label="Loss ablation tables">
+          <table>
+            <caption>Loss design</caption>
+            <thead>
+              <tr><th>\(L_{\mathrm{task}}\)</th><th>\(L_{\mathrm{kd}}\)</th><th>\(L_{\mathrm{attn}}\)</th><th>L9</th><th>L6</th><th>L4</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>✓</td><td>✗</td><td>✗</td><td>95.4</td><td>93.0</td><td>92.3</td></tr>
+              <tr><td>✓</td><td>✓</td><td>✗</td><td>96.2</td><td>93.9</td><td>93.9</td></tr>
+              <tr class="best"><td>✓</td><td>✓</td><td>✓</td><td>96.8</td><td>94.6</td><td>94.2</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <caption>Attention layer</caption>
+            <thead>
+              <tr><th></th><th>L9</th><th>L6</th><th>L4</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Initial</td><td>94.4</td><td>93.9</td><td>91.0</td></tr>
+              <tr class="best"><td>Middle</td><td>96.8</td><td>94.6</td><td>94.2</td></tr>
+              <tr><td>Later</td><td>95.6</td><td>94.1</td><td>92.8</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <caption>Attention target</caption>
+            <thead>
+              <tr><th></th><th>L9</th><th>L6</th><th>L4</th></tr>
+            </thead>
+            <tbody>
+              <tr class="best"><td>Action only</td><td>96.8</td><td>94.6</td><td>93.9</td></tr>
+              <tr><td>All tokens</td><td>0.0</td><td>61.5</td><td>0.0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel results">
+        <h2>Just Benchmark (LIBERO)</h2>
+        <p class="plot-lead"><b>Layer distillation moves models toward the upper-left:</b> high success with lower CUDA time and fewer FLOPs.</p>
+        <figure class="bubble-plot">
+          <svg viewBox="0 0 430 270" role="img" aria-label="Bubble plot of LIBERO average success rate versus CUDA time; bubble size indicates FLOPs">
+            <defs>
+              <filter id="bubbleShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#241b35" flood-opacity=".18"/>
+              </filter>
+              <marker id="speedArrow" markerWidth="8" markerHeight="8" refX="2" refY="4" orient="auto">
+                <path d="M8 0L0 4L8 8" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+            <g class="gridlines">
+              <path d="M48 214H396M48 183H396M48 151H396M48 120H396M48 89H396M48 57H396"/>
+              <path d="M48 26V214M127 26V214M206 26V214M285 26V214M364 26V214"/>
+            </g>
+            <path class="axis" d="M48 26V214H396"/>
+            <g class="ticks y">
+              <text x="40" y="218">86</text><text x="40" y="187">88</text><text x="40" y="155">90</text><text x="40" y="124">92</text><text x="40" y="93">94</text><text x="40" y="61">96</text><text x="40" y="30">98</text>
+            </g>
+            <g class="ticks x">
+              <text x="48" y="236">10</text><text x="127" y="236">15</text><text x="206" y="236">20</text><text x="285" y="236">25</text><text x="364" y="236">30</text>
+            </g>
+            <text class="axis-label x-label" x="222" y="258">CUDA time on H100 (ms) ↓</text>
+            <text class="axis-label y-label" transform="translate(14 124) rotate(-90)">LIBERO avg SR (%) ↑</text>
+
+            <g class="bubbles" filter="url(#bubbleShadow)">
+              <circle class="baseline" cx="247" cy="73" r="13"/><text x="260" y="70">π₀</text>
+              <circle class="baseline" cx="293" cy="57" r="14"/><text x="306" y="55">π₀.₅</text>
+              <circle class="token" cx="380" cy="42" r="12"/><text x="333" y="35">CogVLA</text>
+              <circle class="token" cx="238" cy="42" r="13"/><text x="190" y="38">LightVLA</text>
+              <circle class="small" cx="301" cy="198" r="6"/><text x="312" y="202">SmoLVLA</text>
+              <circle class="ours" cx="103" cy="73" r="9"/><text x="113" y="72">π₀-L9</text>
+              <circle class="ours" cx="56" cy="89" r="8"/><text x="67" y="93">π₀-L6</text>
+              <circle class="ours" cx="124" cy="42" r="10"/><text x="135" y="43">π₀.₅-L9</text>
+              <circle class="ours" cx="69" cy="73" r="9"/><text x="78" y="64">π₀.₅-L6</text>
+            </g>
+          </svg>
+          <figcaption>Bubble size encodes FLOPs. Layer-distilled variants keep teacher-level success while cutting CUDA time.</figcaption>
+        </figure>
+        <div class="plot-legend">
+          <span><i class="baseline"></i>Baseline</span>
+          <span><i class="token"></i>Token compression</span>
+          <span><i class="small"></i>Small backbone</span>
+          <span><i class="ours"></i>Layer distillation</span>
+        </div>
+      </article>
+
+      <aside class="panel takeaway">
+        <h2>On-Device Real Robot Deployment 🏅</h2>
+        <p class="robot-lead"><b>Shallow-<span class="pi-symbol">π</span> can <span class="robot-highlight">outperform its teacher on real robots</span></b> by reducing open-loop chunk execution.</p>
+        <figure class="hardware-figure">
+          <img src="media/shallow-pi/hardware-deployment-transparent.png" alt="On-device real robot deployment with Dynamic ALOHA, RB-Y1 humanoid hands, Jetson devices, and real tasks">
+          <figcaption><b>Bimanual grippers + humanoid hands</b><span>Dynamic, grasping, and high-precision task videos available on the laptop demo loop</span></figcaption>
+        </figure>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>
